@@ -17,18 +17,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { SignupValidation } from "@/lib/validation";
 import Loader from "@/components/shared/Loader";
+import Logo from "@/components/shared/Logo";
 
-//import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations";
-//import { useUserContext } from "@/context/AuthContext";
+import {
+  useCreateUserAccount,
+  useSignInAccount,
+} from "@/lib/tanstack-query/queriesAndMutations";
+import { useUserContext } from "@/context/AuthContext";
 
 const SignupForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  //const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
-  //const { mutateAsync: createUserAccount, isPending: isCreatingUser } = useCreateUserAccount();
+  const { mutateAsync: createUserAccount, isPending: isCreatingUser } =
+    useCreateUserAccount();
 
-  // const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount();
+  const { mutateAsync: signInAccount, isPending: isSigningIn } =
+    useSignInAccount();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignupValidation>>({
@@ -43,40 +49,38 @@ const SignupForm = () => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SignupValidation>) {
-    return;
-    //   // create the user
-    //   const newUser = await createUserAccount(values);
+    // create the user
+    const newUser = await createUserAccount(values);
 
-    //   if (!newUser) {
-    //     return toast({ title: "Sign up failed. Please try again." });
-    //   }
+    if (!newUser) {
+      return toast({ title: "Sign up failed. Please try again." });
+    }
 
-    //   const session = await signInAccount({
-    //     email: values.email,
-    //     password: values.password,
-    //   });
+    const session = await signInAccount({
+      email: values.email,
+      password: values.password,
+    });
 
-    //   if (!session) {
-    //     return toast({ title: "Sign up failed. Please try again." });
-    //   }
+    if (!session) {
+      return toast({ title: "Sign up failed. Please try again." });
+    }
 
-    //   const isLoggedIn = await checkAuthUser();
+    const isLoggedIn = await checkAuthUser();
 
-    //   if (isLoggedIn) {
-    //     form.reset();
+    if (isLoggedIn) {
+      form.reset();
 
-    //     navigate("/");
-    //   } else {
-    //     return toast({ title: "Sign up failed. Please try again." });
-    //   }
+      navigate("/");
+    } else {
+      return toast({ title: "Sign up failed. Please try again." });
+    }
   }
 
   return (
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col">
-        <div className="">
-          <h1 className="flex h1-bold">FinTalk</h1>
-          <img src="/assets/images/logo.svg" alt="logo" className="flex" />
+        <div className="flex-">
+          <Logo />
         </div>
 
         <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">
@@ -143,16 +147,14 @@ const SignupForm = () => {
             )}
           />
           <Button type="submit" className="shad-button_primary">
-            {
-              /*isCreatingUser*/ false ? (
-                <div className="flex-center gap-2">
-                  <Loader />
-                  Loading...
-                </div>
-              ) : (
-                "Sign up"
-              )
-            }
+            {isCreatingUser ? (
+              <div className="flex-center gap-2">
+                <Loader />
+                Loading...
+              </div>
+            ) : (
+              "Sign up"
+            )}
           </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
