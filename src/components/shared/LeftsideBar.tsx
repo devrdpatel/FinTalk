@@ -13,6 +13,10 @@ const LeftsideBar = () => {
   const { user } = useUserContext();
   const { pathname } = useLocation();
 
+  useEffect(() => {
+    if (isSuccess) navigate(0);
+  }, [isSuccess]);
+
   return (
     <nav className="leftsidebar">
       <div className="flex flex-col gap-11">

@@ -20,7 +20,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        'primary-500': '#80FF80',
+        'primary-500': '#009933',
         'primary-600': '#4DFF4D',
         'secondary-500': '#FFB620',
         'off-white': '#D0DFFF',

@@ -61,8 +61,8 @@ const SignInForm = () => {
 
   return (
     <Form {...form}>
-      <div className="sm:w-420 flex-center flex-col">
-        <div className="flex-">
+      <div className="sm:w-420 flex-center flex-col items-center">
+        <div className="flex flex-row-reverse">
           <Logo />
         </div>
 

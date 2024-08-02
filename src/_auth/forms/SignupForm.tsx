@@ -79,7 +79,7 @@ const SignupForm = () => {
   return (
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col">
-        <div className="flex-">
+        <div className="flex flex-row-reverse">
           <Logo />
         </div>
 
