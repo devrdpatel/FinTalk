@@ -16,6 +16,7 @@ import {
   UpdateProfile,
 } from "./_root/pages";
 import "./globals.css";
+import { Toaster } from "./components/ui/toaster";
 
 const App = () => {
   return (
@@ -40,6 +41,8 @@ const App = () => {
           <Route path="/update-profile/:id" element={<UpdateProfile />} />
         </Route>
       </Routes>
+
+      <Toaster />
     </main>
   );
 };
