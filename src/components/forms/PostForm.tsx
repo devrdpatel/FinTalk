@@ -20,7 +20,10 @@ import { Models } from "appwrite";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "../ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useCreatePost } from "@/lib/tanstack-query/queriesAndMutations";
+import {
+  useCreatePost,
+  useUpdatePost,
+} from "@/lib/tanstack-query/queriesAndMutations";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -30,6 +33,8 @@ type PostFormProps = {
 const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: createPost, isPending: isLoadingCreate } =
     useCreatePost();
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
+    useUpdatePost();
 
   const { user } = useUserContext();
   const { toast } = useToast();
@@ -48,6 +53,23 @@ const PostForm = ({ post, action }: PostFormProps) => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof PostValidation>) {
+    // Check if post just needs to be updated
+    if (post && action === "Update") {
+      const updatedPost = await updatePost({
+        ...values,
+        postId: post.$id,
+        imageId: post?.imageId,
+        imageUrl: post?.imageUrl,
+      });
+
+      if (!updatedPost) {
+        toast({ title: "Please try again" });
+      }
+
+      return navigate(`/posts/${post.$id}`);
+    }
+
+    // Otherwise create new post
     const newPost = await createPost({
       ...values,
       userId: user.id,
@@ -128,7 +150,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
                 <Input
                   type="text"
                   className="shad-input"
-                  placeholder="Bullish, Earnings, Crypto"
+                  placeholder="Art, Expression, and Learn"
                   {...field}
                 />
               </FormControl>
@@ -145,9 +167,9 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button
             type="submit"
             className="shad-button_primary whitespace-nowrap"
-            disabled={isLoadingCreate}
+            disabled={isLoadingCreate || isLoadingUpdate}
           >
-            {isLoadingCreate && "Loading..."}
+            {(isLoadingCreate || isLoadingUpdate) && "Loading..."}
             {action} Post
           </Button>
         </div>
