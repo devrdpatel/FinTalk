@@ -120,6 +120,54 @@ export async function createPost(post: INewPost) {
     }
 }
 
+export async function updatePost(post: IUpdatePost) {
+    const hasFileToUpdate = post.file.length > 0;
+
+    try {
+        let image = {
+            imageUrl: post.imageUrl,
+            imageId: post.imageId
+        }
+
+        if (hasFileToUpdate) {
+            // upload image to storage
+            const uploadedFile = await uploadFile(post.file[0]);
+
+            if (!uploadedFile) throw Error;
+
+            // get file url
+            const fileUrl = getFilePreview(uploadedFile.$id);
+            if (!fileUrl) {
+                await deleteFile(uploadedFile.$id)
+                throw Error;
+            }
+
+            image = {...image, imageUrl: fileUrl, imageId: uploadedFile.$id}
+        }
+
+        // Convert tags in an array
+        const tags = post.tags?.replace(/ /g, ' ').split(",") || [];
+
+        // Save post to database
+        const updatedPost = await databases.updateDocument(appwriteConfig.databaseId, appwriteConfig.postCollectionId, post.postId, {
+            caption: post.caption,
+            imageUrl: image.imageUrl,
+            imageId: image.imageId,
+            location: post.location,
+            tags: tags,
+        })
+
+        if (!updatedPost) {
+            await deleteFile(post.imageId)
+            throw Error;
+        }
+
+        return updatedPost;
+    } catch(error) {
+        console.log(error)
+    }
+}
+
 export async function uploadFile(file: File) {
     try {
         const uploadedFile = await storage.createFile(appwriteConfig.storageId, ID.unique(), file);
@@ -218,49 +266,17 @@ export async function getPostById(postId: string) {
     }
 }
 
-export async function updatePost(post: IUpdatePost) {
-    const hasFileToUpdate = post.file.length > 0;
+export async function deletePost(postId: string, imageId: string) {
+    if (!postId || !imageId) throw Error;
 
     try {
-        let image = {
-            imageUrl: post.imageUrl,
-            imageId: post.imageId
-        }
+        await databases.deleteDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            postId
+        )
 
-        if (hasFileToUpdate) {
-            // upload image to storage
-            const uploadedFile = await uploadFile(post.file[0]);
-
-            if (!uploadedFile) throw Error;
-
-            // get file url
-            const fileUrl = getFilePreview(uploadedFile.$id);
-            if (!fileUrl) {
-                await deleteFile(uploadedFile.$id)
-                throw Error;
-            }
-
-            image = {...image, imageUrl: fileUrl, imageId: uploadedFile.$id}
-        }
-
-        // Convert tags in an array
-        const tags = post.tags?.replace(/ /g, ' ').split(",") || [];
-
-        // Save post to database
-        const updatedPost = await databases.updateDocument(appwriteConfig.databaseId, appwriteConfig.postCollectionId, post.postId, {
-            caption: post.caption,
-            imageUrl: image.imageUrl,
-            imageId: image.imageId,
-            location: post.location,
-            tags: tags,
-        })
-
-        if (!updatedPost) {
-            await deleteFile(post.imageId)
-            throw Error;
-        }
-
-        return updatedPost;
+        return {status: 'ok'};
     } catch(error) {
         console.log(error)
     }
