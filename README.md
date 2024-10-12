@@ -16,6 +16,12 @@ Introducing... **Fintalk**: A fullstack social media application where users can
 * **React Query Integration**: Utilizes React Query for auto-caching, parallel queries, and efficient data management.
 * **Backend as a Service (BaaS)** - Appwrite: Leverages Appwrite for backend features like authentication, database, and file storage.
 
+## Preview
+
+<img alt="Landing Page" src="https://imgur.com/6YOQyEj.gif">
+
+<img alt="Explore Page" src="https://imgur.com/RKKoyjT.gif">
+
 ## <a name="tech-stack"> Tech Stack</a>
 
 - React.JS
